@@ -16,7 +16,7 @@
     "dependencies": {
         "@deriv-com/api-hooks": "^1.6.5",
         "@deriv-com/utils": "^0.0.33",
-        "@tanstack/react-query": "^5.51.16",
+        "@tanstack/react-query": "^5.55.4",
         "react": "^18.3.1",
         "react-dom": "^18.3.1"
     },
