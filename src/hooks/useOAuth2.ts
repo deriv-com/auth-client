@@ -27,7 +27,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
     const { OAuth2EnabledApps, OAuth2EnabledAppsInitialised } = OAuth2GrowthBookConfig;
     const isOAuth2Enabled = useIsOAuth2Enabled(OAuth2EnabledApps, OAuth2EnabledAppsInitialised);
 
-    const intervalRef = useRef()
+    const timeoutRef = useRef()
 
     useEffect(() => {
         if (!isOAuth2Enabled) return;
@@ -37,8 +37,8 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             if (allowedOrigin === event.origin) {
                 if (event.data === 'logout_complete') {
                     console.warn("logout completed")
-                    if (intervalRef.current) {
-                        clearInterval(intervalRef.current);
+                    if (timeoutRef.current) {
+                        clearInterval(timeoutRef.current)
                     }
                     await WSLogoutAndRedirect();
                 } else {
@@ -66,7 +66,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             iframe.style.display = 'none';
             document.body.appendChild(iframe);
 
-            intervalRef.current = setInterval(async () => {
+            timeoutRef.current = setTimeout(async () => {
                 await WSLogoutAndRedirect();
             }, 10000);
         }
