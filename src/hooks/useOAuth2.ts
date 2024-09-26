@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { getOAuthLogoutUrl, getOAuthOrigin } from '../constants/';
 import { useIsOAuth2Enabled } from './useIsOAuth2Enabled';
 
@@ -27,6 +27,8 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
     const { OAuth2EnabledApps, OAuth2EnabledAppsInitialised } = OAuth2GrowthBookConfig;
     const isOAuth2Enabled = useIsOAuth2Enabled(OAuth2EnabledApps, OAuth2EnabledAppsInitialised);
 
+    const intervalRef = useRef()
+
     useEffect(() => {
         if (!isOAuth2Enabled) return;
 
@@ -35,6 +37,9 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             if (allowedOrigin === event.origin) {
                 if (event.data === 'logout_complete') {
                     console.warn("logout completed")
+                    if (intervalRef.current) {
+                        clearInterval(intervalRef.current);
+                    }
                     await WSLogoutAndRedirect();
                 } else {
                     console.warn('Unexpected message received: ', event.data);
@@ -61,7 +66,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             iframe.style.display = 'none';
             document.body.appendChild(iframe);
 
-            setTimeout(async () => {
+            intervalRef.current = setInterval(async () => {
                 await WSLogoutAndRedirect();
             }, 10000);
         }
