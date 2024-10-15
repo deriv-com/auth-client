@@ -45,7 +45,7 @@
         "semantic-release": "^23.0.6",
         "typescript": "^5.5.4",
         "typescript-eslint": "^8.0.1",
-        "vite": "^5.4.1",
+        "vite": "^5.4.9",
         "vite-plugin-dts": "^4.2.1"
     }
 }
