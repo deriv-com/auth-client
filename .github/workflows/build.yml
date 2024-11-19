@@ -22,6 +22,6 @@ jobs:
       - name: Update to latest npm (temporary fix for audit below)
         run: npm install --global npm
       - name: Install dependencies
-        run: npm clean-install
+        run: npm install
       - name: Build
         run: npm run build
