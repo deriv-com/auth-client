@@ -42,7 +42,7 @@ export default defineConfig({
         },
         copyPublicDir: false,
         rollupOptions: {
-            external: ['react', 'react/jsx-runtime', 'react-dom', '@deriv-com/utils'],
+            external: ['react', 'react-dom', '@deriv-com/utils'],
             input: Object.fromEntries(
                 glob
                     .sync('src/**/*.{ts,tsx}', {
