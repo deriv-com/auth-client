@@ -26,6 +26,11 @@ export default defineConfig({
             '@': resolve(__dirname, './src'),
         },
     },
+    overrides: {
+        vite: {
+            rollup: 'npm:@rollup/wasm-node',
+        },
+    },
     css: {
         preprocessorOptions: {
             scss: {

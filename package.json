@@ -50,5 +50,8 @@
         "vite-plugin-dts": "^4.2.1",
         "vite-plugin-lib-inject-css": "2.0.1",
         "vite-plugin-svgr": "^4.3.0"
+    },
+    "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "*"
     }
 }
