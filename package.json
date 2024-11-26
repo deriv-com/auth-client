@@ -24,7 +24,7 @@
         "access": "public"
     },
     "dependencies": {
-        "@deriv-com/utils": "^0.0.37",
+        "@deriv-com/utils": "^0.0.41",
         "@testing-library/react": "^16.0.1",
         "js-cookie": "3.0.5",
         "oidc-client-ts": "^3.1.0"
