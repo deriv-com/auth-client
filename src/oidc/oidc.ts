@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts';
 import { OIDCError, OIDCErrorType } from './error';
 import { getServerInfo } from '../constants';
@@ -38,6 +39,12 @@ type RequestOidcTokenOptions = {
 type CreateUserManagerOptions = {
     redirectCallbackUri?: string;
     postLogoutRedirectUri?: string;
+};
+
+type RequestSilentLoginOptions = {
+    clientAccounts: Record<string | number, unknown>;
+    redirectCallbackUri: string;
+    endpointUri?: string;
 };
 
 /**
@@ -225,6 +232,49 @@ export const requestLegacyToken = async (accessToken: string): Promise<LegacyTok
         console.error('unable to request legacy tokens: ', error);
         if (error instanceof Error) throw new OIDCError(OIDCErrorType.LegacyTokenRequestFailed, error.message);
         throw new OIDCError(OIDCErrorType.LegacyTokenRequestFailed, 'unable to request legacy tokens');
+    }
+};
+
+/**
+ * Initiates a silent login process only when:
+ * - User must have previously logged in (checked via 'logged_state' cookie set to `true`)
+ * - Current page is not a callback/endpoint page
+ * - Client accounts data in localStorage does not exist
+ *
+ * @async
+ * @param {Object} options - Configuration options for the silent login request
+ * @param {string} options.clientAccounts - The client accounts data. This must be retrieved on your side using your app's preferred storage method (localStorage or sessionStorage)
+ * @param {string} options.redirectCallbackUri - The URI path for redirect callback after authentication
+ * @param {string} [options.endpointUri] - Optional URI path to exclude from silent login attempts
+ *
+ * @example
+ *
+ * const clientAccounts = JSON.parse(localStorage.getItem('client.accounts') || '{}')
+ * await requestSilentLogin({
+ *   clientAccounts: clientAccounts,
+ *   redirectCallbackUri: `${window.location.origin}/callback`,
+ *   endpointUri: '/endpoint'
+ * });
+ *
+ * @throws {Error} May throw errors from requestOidcAuthentication if authentication fails
+ * @returns {Promise<void>} Returns a Promise that resolves when the authentication process is complete
+ */
+export const requestSilentLogin = async (options: RequestSilentLoginOptions) => {
+    const isLoggedInCookie = Cookies.get('logged_state') === 'true';
+    // The reason why we are asking the user to pass in the entire client.accounts object is because they may store the data in either localStorage or sessionStorage
+    const isClientAccountsPopulated = Object.keys(options.clientAccounts).length > 0;
+    const isCallbackPage = window.location.href.startsWith(options.redirectCallbackUri);
+    const isEndpointPage = options.endpointUri ? window.location.pathname.includes(options.endpointUri) : false;
+
+    // we only do SSO if:
+    // we have previously logged-in before from SmartTrader or any other apps (Deriv.app, etc) - isLoggedInCookie
+    // if we are not in the callback route to prevent re-calling this function - !isCallbackPage
+    // if client.accounts in localStorage is empty - !isClientAccountsPopulated
+    // and if feature flag for OIDC Phase 2 is enabled - isAuthEnabled
+    if (isLoggedInCookie && !isCallbackPage && !isEndpointPage && !isClientAccountsPopulated) {
+        await requestOidcAuthentication({
+            redirectCallbackUri: options.redirectCallbackUri,
+        });
     }
 };
 

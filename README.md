@@ -174,3 +174,22 @@ const RedirectPage = () => {
     }, []);
 };
 ```
+
+### Using the Silent Login Function
+
+Use this functionality when you application needs to be automatically redirected and sign in when the user has previously logged in from other applications.
+
+For instance, user signs in from Deriv.app and goes into your application (e.g. SmartTrader). To ensure that when the user lands in SmartTrader and automatically sign-in the user, you will need to call the function `requestSilentLogin` at the root of your app:
+
+```typescript
+// YourRootApp/Wrapper.tsx
+
+    useEffect(() => {
+        const clientAccounts = JSON.parse(localStorage.getItem('client.accounts') || '{}')
+        requestSilentLogin({
+            clientAccounts,
+            redirectCallbackUri: `${window.location.origin}/en/callback`, // (this depends on your app, for SmartTrader its /en/callback, but for most apps its /callback)
+            endpointUri: '/en/endpoint'
+        })
+    }, [])
+```
