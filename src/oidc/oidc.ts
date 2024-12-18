@@ -53,7 +53,7 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
         const config = JSON.parse(configFromLocalStorage) as OidcConfiguration;
         // we need to check this, because in case when they go to the endpoints page and switch the app ID and server URL
         // we need to invalidate our OIDC configurations cuz its still pointing to the old server URL
-        if (config.issuer === serverUrl) return JSON.parse(configFromLocalStorage);
+        if (config.issuer.includes(serverUrl || '')) return JSON.parse(configFromLocalStorage);
     }
 
     const { serverUrl } = getServerInfo();
