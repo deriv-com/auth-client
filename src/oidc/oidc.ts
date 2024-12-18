@@ -1,6 +1,6 @@
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts';
 import { OIDCError, OIDCErrorType } from './error';
-import { getServerInfo, DEFAULT_OAUTH_LOGOUT_URL } from '../constants';
+import { getServerInfo, getOAuthLogoutUrl } from '../constants';
 import { getConfigurations } from './config';
 import Cookies from 'js-cookie';
 
@@ -270,11 +270,9 @@ export const createUserManager = async (options: CreateUserManagerOptions) => {
  */
 export const OAuth2Logout = (WSLogoutAndRedirect: () => void) => {
     const oidcEndpoints = localStorage.getItem('config.oidc_endpoints') || '{}';
-    const serverUrl = localStorage.getItem('config.server_url') || '';
 
-    const logoutUrl =
-        JSON.parse(oidcEndpoints).end_session_endpoint ||
-        (serverUrl ? `https://${serverUrl}/oauth2/sessions/logout` : DEFAULT_OAUTH_LOGOUT_URL);
+    const logoutUrl = getOAuthLogoutUrl() || JSON.parse(oidcEndpoints).end_session_endpoint;
+
     const cleanup = () => {
         const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
         if (iframe) iframe.remove();
