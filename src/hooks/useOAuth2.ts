@@ -27,7 +27,11 @@ const LOGOUT_TIMEOUT = 10000;
  * @returns {{ OAuth2Logout: () => Promise<void> }} - Object containing the OAuth2Logout function.
  * @deprecated Please use OAuth2Logout function instead of this hook from the `@deriv-com/auth-client` package.
  */
-export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRedirect: () => Promise<void>) => {
+export const useOAuth2 = (
+    OAuth2GrowthBookConfig: OAuth2GBConfig,
+    WSLogoutAndRedirect: () => Promise<void>,
+    isGBLoaded?: boolean
+) => {
     const { OAuth2EnabledApps, OAuth2EnabledAppsInitialised } = OAuth2GrowthBookConfig;
     const isOAuth2Enabled = useIsOAuth2Enabled(OAuth2EnabledApps, OAuth2EnabledAppsInitialised);
 
@@ -41,13 +45,14 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
     };
 
     const OAuth2Logout = useCallback(async () => {
+        if (!isGBLoaded) return
         if (!isOAuth2Enabled) return WSLogoutAndRedirect();
 
         const onMessage = (event: MessageEvent) => {
             if (event.data === 'logout_complete') {
                 const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
                 const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
-                if (domains.includes(currentDomain)) {
+                if (domains.includes(currentDomain) && isOAuth2Enabled) {
                     Cookies.set('logged_state', 'false', {
                         expires: 30,
                         path: '/',

@@ -41,6 +41,16 @@ type CreateUserManagerOptions = {
     postLogoutRedirectUri?: string;
 };
 
+type OAuth2LogoutOptions = {
+    isGBEnabled?: boolean;
+    clearOIDCStorageOptions?: ClearOIDCStorageOptions;
+};
+
+type ClearOIDCStorageOptions = {
+    redirectCallbackUri: string;
+    postLogoutRedirectUri: string;
+};
+
 /**
  * Fetches the OIDC configuration for the given serverUrl.
  * @returns {Promise<object>} - A promise resolving to the OIDC configuration.
@@ -268,7 +278,7 @@ export const createUserManager = async (options: CreateUserManagerOptions) => {
  * Logs out the user from the auth server and calls the callback function when the logout is complete.
  * @param WSLogoutAndRedirect - The callback function to call after the logout is complete
  */
-export const OAuth2Logout = (WSLogoutAndRedirect: () => void) => {
+export const OAuth2Logout = (WSLogoutAndRedirect: () => void, options: OAuth2LogoutOptions) => {
     const oidcEndpoints = localStorage.getItem('config.oidc_endpoints') || '{}';
 
     const logoutUrl = getOAuthLogoutUrl() || JSON.parse(oidcEndpoints).end_session_endpoint;
@@ -276,6 +286,8 @@ export const OAuth2Logout = (WSLogoutAndRedirect: () => void) => {
     const cleanup = () => {
         const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
         if (iframe) iframe.remove();
+        // NOTE: this will resolve issues where once you are logged out, OIDC may reuse the previous user's OIDC ID token / session data
+        if (options.clearOIDCStorageOptions) clearOIDCStorage(options.clearOIDCStorageOptions);
     };
     const onMessage = (event: MessageEvent) => {
         if (event.data === 'logout_complete') {
@@ -348,6 +360,24 @@ export const oidcLogout = async (options: RequestOidcAuthenticationOptions): Pro
     } catch (error) {
         console.error('Error during logout:', error);
         throw new Error(`Logout failed. ${error}`);
+    }
+};
+
+/**
+ * Clears any OIDC-related storage (localStorage, sessionStorage, etc) about the current user.
+ * There's 2 types of storage `oidc-client-ts` uses: state store, and user store
+ * User store is used for storing the access token and ID token
+ * Use this function when your application has logged out successfully but the session data is still there, otherwise use `OAuth2Logout` function which already handles this scenario
+ *
+ */
+export const clearOIDCStorage = async (options: ClearOIDCStorageOptions) => {
+    try {
+        const userManager = await createUserManager(options);
+
+        await userManager.removeUser();
+    } catch (error) {
+        if (error instanceof Error) throw new OIDCError(OIDCErrorType.FailedToRemoveSession, error.message);
+        throw new OIDCError(OIDCErrorType.FailedToRemoveSession, 'unable to remove OIDC session');
     }
 };
 
