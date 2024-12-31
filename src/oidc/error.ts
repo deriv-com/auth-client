@@ -5,6 +5,7 @@ export enum OIDCErrorType {
     LegacyTokenRequestFailed = 'LegacyTokenRequestFailed',
     UserManagerCreationFailed = 'UserManagerCreationFailed',
     OneTimeCodeMissing = 'OneTimeCodeMissing',
+    FailedToRemoveSession = 'FailedToRemoveSession',
 }
 
 export class OIDCError extends Error {
