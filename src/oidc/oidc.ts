@@ -42,8 +42,9 @@ type CreateUserManagerOptions = {
 };
 
 type OAuth2LogoutOptions = {
-    isGBEnabled?: boolean;
-    clearOIDCStorageOptions?: ClearOIDCStorageOptions;
+    WSLogoutAndRedirect: () => void;
+    redirectCallbackUri: string;
+    postLogoutRedirectUri: string;
 };
 
 type ClearOIDCStorageOptions = {
@@ -278,7 +279,7 @@ export const createUserManager = async (options: CreateUserManagerOptions) => {
  * Logs out the user from the auth server and calls the callback function when the logout is complete.
  * @param WSLogoutAndRedirect - The callback function to call after the logout is complete
  */
-export const OAuth2Logout = (WSLogoutAndRedirect: () => void, options: OAuth2LogoutOptions) => {
+export const OAuth2Logout = (options: OAuth2LogoutOptions) => {
     const oidcEndpoints = localStorage.getItem('config.oidc_endpoints') || '{}';
 
     const logoutUrl = getOAuthLogoutUrl() || JSON.parse(oidcEndpoints).end_session_endpoint;
@@ -287,7 +288,10 @@ export const OAuth2Logout = (WSLogoutAndRedirect: () => void, options: OAuth2Log
         const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
         if (iframe) iframe.remove();
         // NOTE: this will resolve issues where once you are logged out, OIDC may reuse the previous user's OIDC ID token / session data
-        if (options.clearOIDCStorageOptions) clearOIDCStorage(options.clearOIDCStorageOptions);
+        clearOIDCStorage({
+            redirectCallbackUri: options.redirectCallbackUri,
+            postLogoutRedirectUri: options.postLogoutRedirectUri,
+        });
     };
     const onMessage = (event: MessageEvent) => {
         if (event.data === 'logout_complete') {
@@ -301,7 +305,7 @@ export const OAuth2Logout = (WSLogoutAndRedirect: () => void, options: OAuth2Log
                     secure: true,
                 });
             }
-            WSLogoutAndRedirect();
+            options.WSLogoutAndRedirect();
             cleanup();
             window.removeEventListener('message', onMessage);
         }
