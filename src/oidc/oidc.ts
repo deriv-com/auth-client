@@ -279,10 +279,18 @@ export const createUserManager = async (options: CreateUserManagerOptions) => {
  * Logs out the user from the auth server and calls the callback function when the logout is complete.
  * @param WSLogoutAndRedirect - The callback function to call after the logout is complete
  */
-export const OAuth2Logout = (options: OAuth2LogoutOptions) => {
+export const OAuth2Logout = async (options: OAuth2LogoutOptions) => {
     const oidcEndpoints = localStorage.getItem('config.oidc_endpoints') || '{}';
 
-    const logoutUrl = getOAuthLogoutUrl() || JSON.parse(oidcEndpoints).end_session_endpoint;
+    let logoutUrl = getOAuthLogoutUrl() || JSON.parse(oidcEndpoints).end_session_endpoint;
+    const userManager = await createUserManager({
+        redirectCallbackUri: options.redirectCallbackUri,
+        postLogoutRedirectUri: options.postLogoutRedirectUri,
+    });
+    const userState = await userManager.getUser();
+    if (userState?.id_token) {
+        logoutUrl += `?id_token_hint=${userState.id_token}&post_logout_redirect_uri${options.postLogoutRedirectUri}`;
+    }
 
     const cleanup = () => {
         const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
