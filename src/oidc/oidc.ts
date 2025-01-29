@@ -131,7 +131,11 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
             postLogoutRedirectUri,
         });
 
-        await userManager.signinRedirect();
+        await userManager.signinRedirect({
+            extraQueryParams: {
+                brand: "deriv"
+            },
+        });
         return { userManager };
     } catch (error) {
         console.error('Authentication failed:', error);
