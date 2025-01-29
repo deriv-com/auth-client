@@ -60,7 +60,7 @@ export const getOauthUrl = () => {
 
     const oauthUrl =
         appId && serverUrl
-            ? `https://${serverUrl}/oauth2/authorize?app_id=${appId}&l=${lang ?? 'EN'}&&brand=deriv`
+            ? `https://${serverUrl}/oauth2/authorize?app_id=${appId}&l=${lang ?? 'EN'}&brand=deriv`
             : URLUtils.getOauthURL();
 
     return oauthUrl;
