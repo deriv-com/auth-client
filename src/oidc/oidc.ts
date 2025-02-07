@@ -133,7 +133,7 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
 
         await userManager.signinRedirect({
             extraQueryParams: {
-                brand: "deriv"
+                brand: 'deriv',
             },
         });
         return { userManager };
@@ -293,7 +293,7 @@ export const OAuth2Logout = async (options: OAuth2LogoutOptions) => {
     });
     const userState = await userManager.getUser();
     if (userState?.id_token) {
-        logoutUrl += `?id_token_hint=${userState.id_token}&post_logout_redirect_uri${options.postLogoutRedirectUri}`;
+        logoutUrl += `?id_token_hint=${userState.id_token}&post_logout_redirect_uri=${options.postLogoutRedirectUri}`;
     }
 
     const cleanup = () => {
