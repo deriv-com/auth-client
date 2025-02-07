@@ -114,7 +114,7 @@ describe('URLs', () => {
 
             const oauthUrl = getOauthUrl();
 
-            expect(oauthUrl).toBe('https://qa.deriv.com/oauth2/authorize?app_id=67890&l=EN&&brand=deriv');
+            expect(oauthUrl).toBe('https://qa.deriv.com/oauth2/authorize?app_id=67890&l=EN&brand=deriv');
         });
 
         it('should return the default OAuth URL if appId and serverUrl are not set', () => {
@@ -136,7 +136,7 @@ describe('URLs', () => {
 
             const oauthUrl = getOauthUrl();
 
-            expect(oauthUrl).toBe('https://qa.deriv.com/oauth2/authorize?app_id=67890&l=EN&&brand=deriv');
+            expect(oauthUrl).toBe('https://qa.deriv.com/oauth2/authorize?app_id=67890&l=EN&brand=deriv');
         });
     });
 
