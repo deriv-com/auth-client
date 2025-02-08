@@ -270,6 +270,10 @@ export const createUserManager = async (options: CreateUserManagerOptions) => {
             scope: 'openid',
             stateStore: new WebStorageStateStore({ store: window.localStorage }),
             post_logout_redirect_uri: _postLogoutRedirectUri,
+            // this is enabled by default, it runs a silent renew service in the background which triggers the prompt=none auth calls
+            // Source: https://github.com/authts/oidc-client-ts/blob/9ccae8f87b3e9e2df349aaf6f007964ced287b02/src/UserManagerSettings.ts#L140
+            // Notable issue: https://github.com/authts/oidc-client-ts/issues/1174
+            automaticSilentRenew: false,
         });
         return userManager;
     } catch (error) {
@@ -392,6 +396,7 @@ export const clearOIDCStorage = async (options: ClearOIDCStorageOptions) => {
         const userManager = await createUserManager(options);
 
         await userManager.removeUser();
+        await userManager.clearStaleState();
     } catch (error) {
         if (error instanceof Error) throw new OIDCError(OIDCErrorType.FailedToRemoveSession, error.message);
         throw new OIDCError(OIDCErrorType.FailedToRemoveSession, 'unable to remove OIDC session');
