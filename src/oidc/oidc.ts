@@ -317,6 +317,10 @@ export const createUserManager = async (options: CreateUserManagerOptions) => {
             scope: 'openid',
             stateStore: new WebStorageStateStore({ store: window.localStorage }),
             post_logout_redirect_uri: _postLogoutRedirectUri,
+            // this is enabled by default, it runs a silent renew service in the background which triggers the prompt=none auth calls
+            // Source: https://github.com/authts/oidc-client-ts/blob/9ccae8f87b3e9e2df349aaf6f007964ced287b02/src/UserManagerSettings.ts#L140
+            // Notable issue: https://github.com/authts/oidc-client-ts/issues/1174
+            automaticSilentRenew: false,
         });
         return userManager;
     } catch (error) {
@@ -334,14 +338,15 @@ export const OAuth2Logout = async (options: OAuth2LogoutOptions) => {
     const oidcEndpoints = localStorage.getItem('config.oidc_endpoints') || '{}';
 
     let logoutUrl = getOAuthLogoutUrl() || JSON.parse(oidcEndpoints).end_session_endpoint;
-    const userManager = await createUserManager({
-        redirectCallbackUri: options.redirectCallbackUri,
-        postLogoutRedirectUri: options.postLogoutRedirectUri,
-    });
-    const userState = await userManager.getUser();
-    if (userState?.id_token) {
-        logoutUrl += `?id_token_hint=${userState.id_token}&post_logout_redirect_uri${options.postLogoutRedirectUri}`;
-    }
+    // NOTE: Comment this out once front channel is implemented
+    // const userManager = await createUserManager({
+    //     redirectCallbackUri: options.redirectCallbackUri,
+    //     postLogoutRedirectUri: options.postLogoutRedirectUri,
+    // });
+    // const userState = await userManager.getUser();
+    // if (userState?.id_token) {
+    //     logoutUrl += `?id_token_hint=${userState.id_token}&post_logout_redirect_uri=${options.postLogoutRedirectUri}`;
+    // }
 
     const cleanup = () => {
         const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
@@ -438,6 +443,7 @@ export const clearOIDCStorage = async (options: ClearOIDCStorageOptions) => {
         const userManager = await createUserManager(options);
 
         await userManager.removeUser();
+        await userManager.clearStaleState();
     } catch (error) {
         if (error instanceof Error) throw new OIDCError(OIDCErrorType.FailedToRemoveSession, error.message);
         throw new OIDCError(OIDCErrorType.FailedToRemoveSession, 'unable to remove OIDC session');
