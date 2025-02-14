@@ -31,6 +31,10 @@ type RequestOidcAuthenticationOptions = {
     postLogoutRedirectUri?: string;
 };
 
+type requestOidcSilentAuthenticationOptions = {
+    redirectSilentCallbackUri: string;
+};
+
 type RequestOidcTokenOptions = {
     redirectCallbackUri?: string;
     postLogoutRedirectUri?: string;
@@ -141,6 +145,25 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
         console.error('Authentication failed:', error);
         if (error instanceof Error) throw new OIDCError(OIDCErrorType.AuthenticationRequestFailed, error.message);
         throw new OIDCError(OIDCErrorType.AuthenticationRequestFailed, 'unable to request OIDC authentication');
+    }
+};
+
+export const requestOidcSilentAuthentication = async (options: requestOidcSilentAuthenticationOptions) => {
+    const { redirectSilentCallbackUri } = options;
+
+    try {
+        const userManager = await createUserManager({
+            redirectCallbackUri: redirectSilentCallbackUri,
+        });
+
+        await userManager.signinSilent({
+            extraQueryParams: {
+                brand: 'deriv',
+            },
+        });
+        return { userManager };
+    } catch (error) {
+        console.error('Authentication failed:', error);
     }
 };
 
