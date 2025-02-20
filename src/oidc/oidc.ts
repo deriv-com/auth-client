@@ -152,7 +152,7 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
 
 /**
  * Initiates the OIDC silent authentication flow by checking the login status in an iframe.
- * It is recommended to use the `SilentCallback` component from this library in the silent callback page to handle events.
+ * The application will need to have a `/silent-callback` route to handle the silent authentication flow.
  *
  *
  * @param options - Configuration options for the OIDC silent authentication request
