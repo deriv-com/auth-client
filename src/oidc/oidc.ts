@@ -391,15 +391,14 @@ export const OAuth2Logout = async (options: OAuth2LogoutOptions) => {
     const oidcEndpoints = localStorage.getItem('config.oidc_endpoints') || '{}';
 
     let logoutUrl = getOAuthLogoutUrl() || JSON.parse(oidcEndpoints).end_session_endpoint;
-    // NOTE: Comment this out once front channel is implemented
-    // const userManager = await createUserManager({
-    //     redirectCallbackUri: options.redirectCallbackUri,
-    //     postLogoutRedirectUri: options.postLogoutRedirectUri,
-    // });
-    // const userState = await userManager.getUser();
-    // if (userState?.id_token) {
-    //     logoutUrl += `?id_token_hint=${userState.id_token}&post_logout_redirect_uri=${options.postLogoutRedirectUri}`;
-    // }
+
+    const userManager = await createUserManager({
+        redirectCallbackUri: options.redirectCallbackUri,
+    });
+    const userState = await userManager.getUser();
+    if (userState?.id_token) {
+        logoutUrl += `?id_token_hint=${userState.id_token}`;
+    }
 
     const cleanup = () => {
         const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
