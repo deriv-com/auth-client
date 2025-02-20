@@ -32,6 +32,7 @@ type RequestOidcAuthenticationOptions = {
 };
 
 type requestOidcSilentAuthenticationOptions = {
+    redirectCallbackUri?: string;
     redirectSilentCallbackUri: string;
 };
 
@@ -175,11 +176,12 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
  * - An iframe will be generated and embedded in the page, which will send postMessage events to the parent window to indicate the login status
  */
 export const requestOidcSilentAuthentication = async (options: requestOidcSilentAuthenticationOptions) => {
-    const { redirectSilentCallbackUri } = options;
+    const { redirectCallbackUri, redirectSilentCallbackUri } = options;
 
     try {
         const userManager = await createUserManager({
-            redirectCallbackUri: redirectSilentCallbackUri,
+            redirectCallbackUri,
+            redirectSilentCallbackUri,
         });
 
         await userManager.signinSilent({
