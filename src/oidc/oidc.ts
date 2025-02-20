@@ -337,9 +337,7 @@ export const revokeLegacyTokens = async (tokens: string[]): Promise<void> => {
             body: JSON.stringify(tokens),
         });
     } catch (error) {
-        console.error('unable to request legacy tokens: ', error);
-        if (error instanceof Error) throw new OIDCError(OIDCErrorType.RevokeTokenRequestFailed, error.message);
-        throw new OIDCError(OIDCErrorType.RevokeTokenRequestFailed, 'unable to revoke legacy tokens');
+        console.error('unable to request legacy tokens: ', OIDCErrorType.RevokeTokenRequestFailed, error);
     }
 };
 
