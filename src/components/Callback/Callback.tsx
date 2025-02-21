@@ -8,9 +8,9 @@ import './Callback.scss';
 
 type CallbackProps = {
     /** callback function triggerred when `requestOidcToken` is successful. Use this only when you want to request the legacy tokens yourself, otherwise pass your callback to `onSignInSuccess` prop instead */
-    onRequestOidcTokenSuccess?: (accessToken: string) => void;
+    onRequestOidcTokenSuccess?: (accessToken: string, state: unknown) => void;
     /** callback function triggered when the OIDC authentication flow is successful */
-    onSignInSuccess?: (tokens: LegacyTokens) => void;
+    onSignInSuccess?: (tokens: LegacyTokens, state: unknown) => void;
     /** callback function triggered when sign-in encounters an error */
     onSignInError?: (error: Error) => void;
     /** URI to redirect to the callback page. This is where you should pass the callback page URL in your app .e.g. https://app.deriv.com/callback or https://smarttrader.deriv.com/en/callback  */
@@ -62,17 +62,18 @@ export const Callback = ({
 
     const fetchTokens = useCallback(async () => {
         try {
-            const { accessToken } = await requestOidcToken({
+            const { accessToken, userManager } = await requestOidcToken({
                 redirectCallbackUri,
                 postLogoutRedirectUri,
             });
+            const user = await userManager.getUser();
 
             if (accessToken) {
-                onRequestOidcTokenSuccess?.(accessToken);
+                onRequestOidcTokenSuccess?.(accessToken, user?.state);
 
                 const legacyTokens = await requestLegacyToken(accessToken);
 
-                onSignInSuccess?.(legacyTokens);
+                onSignInSuccess?.(legacyTokens, user?.state);
                 const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
                 const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
                 if (domains.includes(currentDomain)) {

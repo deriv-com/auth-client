@@ -29,6 +29,7 @@ type RequestOidcAuthenticationOptions = {
     redirectCallbackUri?: string;
     postLoginRedirectUri?: string;
     postLogoutRedirectUri?: string;
+    state?: Record<string, any>;
 };
 
 type requestOidcSilentAuthenticationOptions = {
@@ -123,7 +124,7 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
  * - The post login/logout redirect URIs are stored in local storage as `config.post_login_redirect_uri` and `config.post_logout_redirect_uri`
  */
 export const requestOidcAuthentication = async (options: RequestOidcAuthenticationOptions) => {
-    const { redirectCallbackUri, postLoginRedirectUri, postLogoutRedirectUri } = options;
+    const { redirectCallbackUri, postLoginRedirectUri, postLogoutRedirectUri, state } = options;
 
     // If the post login redirect URI is not specified, redirect the user back to where the OIDC authentication is initiated
     // This will be used later by the Callback component to redirect back to where the OIDC flow is initiated
@@ -141,6 +142,7 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
             extraQueryParams: {
                 brand: 'deriv',
             },
+            state,
         });
         return { userManager };
     } catch (error) {
@@ -241,6 +243,7 @@ export const requestOidcToken = async (options: RequestOidcTokenOptions) => {
 
         return {
             accessToken: user?.access_token,
+            userManager,
         };
     } catch (error) {
         console.error('unable to request access tokens: ', error);
