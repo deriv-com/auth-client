@@ -37,7 +37,7 @@ export default defineConfig({
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
             formats: ['es'],
-            name: 'adrienne-auth-client',
+            name: 'adrian-auth-client',
             fileName: 'auth-client',
         },
         copyPublicDir: false,
