@@ -74,7 +74,7 @@ export const Callback = ({
                 const legacyTokens = await requestLegacyToken(accessToken);
 
                 onSignInSuccess?.(legacyTokens, user?.state);
-                const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
+                const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost'];
                 const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
                 if (domains.includes(currentDomain)) {
                     Cookies.set('logged_state', 'true', {

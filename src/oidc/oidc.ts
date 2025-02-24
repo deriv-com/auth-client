@@ -35,6 +35,7 @@ type RequestOidcAuthenticationOptions = {
 type requestOidcSilentAuthenticationOptions = {
     redirectCallbackUri?: string;
     redirectSilentCallbackUri: string;
+    state?: Record<string, any>;
 };
 
 type RequestOidcTokenOptions = {
@@ -101,6 +102,7 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
  * @param options.redirectCallbackUri - The callback page URI to redirect back
  * @param options.postLoginRedirectUri - The URI to redirect after the callback page. This is where you usually pass the page URL where you initiated the login flow
  * @param options.postLogoutRedirectUri - The URI where the application should redirect after processing the logout
+ *  * @param options.state - An optional payload you can pass to the authentication flow. This will allow OIDC to carry your state in the callback page, where you can perform additional redirection actions based on the state
  *
  * @returns Promise that resolves to an object containing the UserManager instance
  * @throws {OIDCError} With type AuthenticationRequestFailed if the authentication request fails
@@ -111,7 +113,10 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
  *   const { userManager } = await requestOidcAuthentication({
  *     redirectCallbackUri: 'https://smarttrader.deriv.com/en/callback',
  *     postLoginRedirectUri: 'https://smarttrader.deriv.com/en/trading',
- *     postLogoutRedirectUri: https://smarttrader.deriv.com/en/trading''
+ *     postLogoutRedirectUri: https://smarttrader.deriv.com/en/trading',
+ *    state: {
+ *      redirect_to: '/tradershub/home'
+ *     }
  *   });
  * } catch (error) {
  *   // Handle authentication request error
@@ -159,6 +164,7 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
  *
  * @param options - Configuration options for the OIDC silent authentication request
  * @param options.redirectSilentCallbackUri - The silent callback page URI which will be rendered in an iframe to check login status
+ * @param options.state - An optional payload you can pass to the silent authentication flow. This will allow OIDC to carry your state in the callback page, where you can perform additional redirection actions based on the state
  *
  * @returns Promise that resolves to an object containing the UserManager instance
  * @throws {OIDCError} With type AuthenticationRequestFailed if the authentication request fails
@@ -168,6 +174,9 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
  * try {
  *   const { userManager } = await requestOidcSilentAuthentication({
  *     redirectCallbackUri: 'https://smarttrader.deriv.com/en/silent-callback',
+ * *    state: {
+ *          redirect_to: '/tradershub/home'
+ *      }
  *   });
  * } catch (error) {
  *   // Handle authentication request error
@@ -178,7 +187,7 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
  * - An iframe will be generated and embedded in the page, which will send postMessage events to the parent window to indicate the login status
  */
 export const requestOidcSilentAuthentication = async (options: requestOidcSilentAuthenticationOptions) => {
-    const { redirectCallbackUri, redirectSilentCallbackUri } = options;
+    const { redirectCallbackUri, redirectSilentCallbackUri, state } = options;
 
     try {
         const userManager = await createUserManager({
@@ -190,6 +199,7 @@ export const requestOidcSilentAuthentication = async (options: requestOidcSilent
             extraQueryParams: {
                 brand: 'deriv',
             },
+            state,
             silentRequestTimeoutInSeconds: 60000,
         });
         return { userManager };
@@ -412,7 +422,7 @@ export const OAuth2Logout = async (options: OAuth2LogoutOptions) => {
     };
     const onMessage = (event: MessageEvent) => {
         if (event.data === 'logout_complete') {
-            const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
+            const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost'];
             const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
             if (domains.includes(currentDomain)) {
                 Cookies.set('logged_state', 'false', {
@@ -528,7 +538,7 @@ export const handlePostLogout = (callbackFunction: () => void) => {
     const sessionStorageKey = `oidc.user:${serverUrl}:${appId}`;
 
     if (!window.sessionStorage.getItem(sessionStorageKey)) {
-        const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
+        const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost'];
         const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
         if (domains.includes(currentDomain)) {
             Cookies.set('logged_state', 'false', {
