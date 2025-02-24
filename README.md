@@ -166,6 +166,44 @@ Once the legacy tokens are sent to the consumer apps, the library assumes that t
 
 Note : The callback page does NOT handle authorize calls. Its sole purpose is to do the access token exchange and return back the legacy tokens to the consumer apps.
 
+## State parameter
+
+You can pass in an additional state parameter for payloads to `requestOidcAuthentication` or `requestSilentOidcAuthentication`, which will be carried over to the `Callback` component. You can perform things like passing in an additional `redirect_to` metadata to inform `Callback` page where to redirect to next after authentication is completed:
+
+```
+  requestOidcAuthentication({
+    redirectCallbackUri: `${window.location.origin}/callback`,
+    state: {
+      redirect_to: '/tradershub/home'
+    }
+  });
+```
+
+And within the `Callback` component, it will return the state from the `onSignInSuccess` callback function:
+
+```
+const CallbackPage = () => {
+  const { updateLoginAccounts } = useAuthContext();
+
+  return (
+    <Callback
+      onSignInSuccess={(tokens, state) => {
+        const accounts = transformAccountsFromResponseBody(tokens);
+
+        updateLoginAccounts(accounts);
+
+        const redirectTo = (state as Record<string, any>)?.redirect_to;
+        if (redirectTo) {
+          window.location.href = redirectTo;
+        } else {
+          window.location.href = '/';
+        }
+      }}
+    />
+  );
+};
+```
+
 ## Logout Flow
 
 This logout process combines two parts: clearing OAuth session cookies through the OAuth2Logout function and running custom cleanup logic specific to your app (like clearing user accounts or tokens). Let’s break it down step-by-step:
