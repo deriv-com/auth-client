@@ -62,11 +62,10 @@ export const Callback = ({
 
     const fetchTokens = useCallback(async () => {
         try {
-            const { accessToken, userManager } = await requestOidcToken({
+            const { accessToken, user } = await requestOidcToken({
                 redirectCallbackUri,
                 postLogoutRedirectUri,
             });
-            const user = await userManager.getUser();
 
             if (accessToken) {
                 onRequestOidcTokenSuccess?.(accessToken, user?.state);

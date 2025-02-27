@@ -253,7 +253,7 @@ export const requestOidcToken = async (options: RequestOidcTokenOptions) => {
 
         return {
             accessToken: user?.access_token,
-            userManager,
+            user,
         };
     } catch (error) {
         console.error('unable to request access tokens: ', error);
