@@ -51,8 +51,8 @@ type CreateUserManagerOptions = {
 
 type OAuth2LogoutOptions = {
     WSLogoutAndRedirect: () => void;
-    redirectCallbackUri: string;
-    postLogoutRedirectUri: string;
+    redirectCallbackUri?: string;
+    postLogoutRedirectUri?: string;
 };
 
 type ClearOIDCStorageOptions = {
@@ -253,7 +253,7 @@ export const requestOidcToken = async (options: RequestOidcTokenOptions) => {
 
         return {
             accessToken: user?.access_token,
-            userManager,
+            user,
         };
     } catch (error) {
         console.error('unable to request access tokens: ', error);
@@ -538,7 +538,7 @@ export const handlePostLogout = (callbackFunction: () => void) => {
     const sessionStorageKey = `oidc.user:${serverUrl}:${appId}`;
 
     if (!window.sessionStorage.getItem(sessionStorageKey)) {
-        const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost'];
+        const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
         const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
         if (domains.includes(currentDomain)) {
             Cookies.set('logged_state', 'false', {
