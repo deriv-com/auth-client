@@ -51,8 +51,8 @@ type CreateUserManagerOptions = {
 
 type OAuth2LogoutOptions = {
     WSLogoutAndRedirect: () => void;
-    redirectCallbackUri?: string;
-    postLogoutRedirectUri?: string;
+    redirectCallbackUri: string;
+    postLogoutRedirectUri: string;
 };
 
 type ClearOIDCStorageOptions = {
