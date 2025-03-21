@@ -30,12 +30,14 @@ type RequestOidcAuthenticationOptions = {
     postLoginRedirectUri?: string;
     postLogoutRedirectUri?: string;
     state?: Record<string, any>;
+    login_code?: string;
 };
 
 type requestOidcSilentAuthenticationOptions = {
     redirectCallbackUri?: string;
     redirectSilentCallbackUri: string;
     state?: Record<string, any>;
+    login_code?: string;
 };
 
 type RequestOidcTokenOptions = {
@@ -129,7 +131,7 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
  * - The post login/logout redirect URIs are stored in local storage as `config.post_login_redirect_uri` and `config.post_logout_redirect_uri`
  */
 export const requestOidcAuthentication = async (options: RequestOidcAuthenticationOptions) => {
-    const { redirectCallbackUri, postLoginRedirectUri, postLogoutRedirectUri, state } = options;
+    const { redirectCallbackUri, postLoginRedirectUri, postLogoutRedirectUri, state, login_code } = options;
 
     // If the post login redirect URI is not specified, redirect the user back to where the OIDC authentication is initiated
     // This will be used later by the Callback component to redirect back to where the OIDC flow is initiated
@@ -146,6 +148,7 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
         await userManager.signinRedirect({
             extraQueryParams: {
                 brand: 'deriv',
+                ...(login_code ? { login_code: login_code } : {}),
             },
             state,
         });
@@ -187,7 +190,7 @@ export const requestOidcAuthentication = async (options: RequestOidcAuthenticati
  * - An iframe will be generated and embedded in the page, which will send postMessage events to the parent window to indicate the login status
  */
 export const requestOidcSilentAuthentication = async (options: requestOidcSilentAuthenticationOptions) => {
-    const { redirectCallbackUri, redirectSilentCallbackUri, state } = options;
+    const { redirectCallbackUri, redirectSilentCallbackUri, state, login_code } = options;
 
     try {
         const userManager = await createUserManager({
@@ -198,6 +201,7 @@ export const requestOidcSilentAuthentication = async (options: requestOidcSilent
         await userManager.signinSilent({
             extraQueryParams: {
                 brand: 'deriv',
+                ...(login_code ? { login_code: login_code } : {}),
             },
             state,
             silentRequestTimeoutInSeconds: 60000,
