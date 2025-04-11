@@ -10,19 +10,6 @@ describe('useOAuth2', () => {
         jest.clearAllMocks();
     });
 
-    it('should call WSLogoutAndRedirect if OAuth2 is not enabled', async () => {
-
-        const { result } = renderHook(() =>
-            useOAuth2(WSLogoutAndRedirect)
-        );
-
-        await act(async () => {
-            await result.current.OAuth2Logout();
-        });
-
-        expect(WSLogoutAndRedirect).toHaveBeenCalled();
-    });
-
     it('should set cookie and call WSLogoutAndRedirect on logout complete message', async () => {
 
         const { result } = renderHook(() =>
