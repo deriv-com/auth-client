@@ -22,7 +22,7 @@ This project is designed to handle authentication using OAuth2 with Hydra and OI
 ### Prerequisites
 
 -   Node.js (>= 14.x)
--   npm (>= 6.x)
+-   npm (>= 8.x)
 
 ### Installation
 
