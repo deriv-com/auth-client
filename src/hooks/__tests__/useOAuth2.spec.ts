@@ -1,9 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useOAuth2 } from '../useOAuth2';
-import { useIsOAuth2Enabled } from '../useIsOAuth2Enabled';
 import Cookies from 'js-cookie';
-
-jest.mock('../useIsOAuth2Enabled');
 jest.mock('js-cookie');
 
 describe('useOAuth2', () => {
@@ -14,10 +11,9 @@ describe('useOAuth2', () => {
     });
 
     it('should call WSLogoutAndRedirect if OAuth2 is not enabled', async () => {
-        (useIsOAuth2Enabled as jest.Mock).mockReturnValue(false);
 
         const { result } = renderHook(() =>
-            useOAuth2({ OAuth2EnabledApps: [], OAuth2EnabledAppsInitialised: false }, WSLogoutAndRedirect)
+            useOAuth2(WSLogoutAndRedirect)
         );
 
         await act(async () => {
@@ -28,10 +24,9 @@ describe('useOAuth2', () => {
     });
 
     it('should set cookie and call WSLogoutAndRedirect on logout complete message', async () => {
-        (useIsOAuth2Enabled as jest.Mock).mockReturnValue(true);
 
         const { result } = renderHook(() =>
-            useOAuth2({ OAuth2EnabledApps: [], OAuth2EnabledAppsInitialised: true }, WSLogoutAndRedirect)
+            useOAuth2(WSLogoutAndRedirect)
         );
 
         await act(async () => {
@@ -56,10 +51,9 @@ describe('useOAuth2', () => {
 
     it('should call WSLogoutAndRedirect on timeout', async () => {
         jest.useFakeTimers();
-        (useIsOAuth2Enabled as jest.Mock).mockReturnValue(true);
 
         const { result } = renderHook(() =>
-            useOAuth2({ OAuth2EnabledApps: [], OAuth2EnabledAppsInitialised: true }, WSLogoutAndRedirect)
+            useOAuth2(WSLogoutAndRedirect)
         );
 
         await act(async () => {
@@ -72,11 +66,10 @@ describe('useOAuth2', () => {
     });
 
     it('should handle iframe onError event and call WSLogoutAndRedirect', async () => {
-        (useIsOAuth2Enabled as jest.Mock).mockReturnValue(true);
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
         const { result } = renderHook(() =>
-            useOAuth2({ OAuth2EnabledApps: [], OAuth2EnabledAppsInitialised: true }, WSLogoutAndRedirect)
+            useOAuth2(WSLogoutAndRedirect)
         );
 
         await act(async () => {
