@@ -1,20 +1,10 @@
 import { useCallback, useRef } from 'react';
 import { getOAuthLogoutUrl } from '../constants/';
-import { useIsOAuth2Enabled } from './useIsOAuth2Enabled';
 import Cookies from 'js-cookie';
 
 type MessageEvent = {
     data: 'logout_complete' | 'logout_error';
     origin: string;
-};
-
-export type TOAuth2EnabledAppList = {
-    enabled_for: number[];
-}[];
-
-type OAuth2GBConfig = {
-    OAuth2EnabledApps: TOAuth2EnabledAppList;
-    OAuth2EnabledAppsInitialised: boolean;
 };
 
 const LOGOUT_TIMEOUT = 10000;
@@ -27,10 +17,7 @@ const LOGOUT_TIMEOUT = 10000;
  * @returns {{ OAuth2Logout: () => Promise<void> }} - Object containing the OAuth2Logout function.
  * @deprecated Please use OAuth2Logout function instead of this hook from the `@deriv-com/auth-client` package.
  */
-export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRedirect: () => Promise<void>) => {
-    const { OAuth2EnabledApps, OAuth2EnabledAppsInitialised } = OAuth2GrowthBookConfig;
-    const isOAuth2Enabled = useIsOAuth2Enabled(OAuth2EnabledApps, OAuth2EnabledAppsInitialised);
-
+export const useOAuth2 = (WSLogoutAndRedirect: () => Promise<void>) => {
     const timeout = useRef<ReturnType<typeof setTimeout>>();
 
     const cleanup = () => {
@@ -41,8 +28,6 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
     };
 
     const OAuth2Logout = useCallback(async () => {
-        if (!isOAuth2Enabled) return WSLogoutAndRedirect();
-
         const onMessage = (event: MessageEvent) => {
             if (event.data === 'logout_complete') {
                 const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost'];
@@ -83,7 +68,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             window.removeEventListener('message', onMessage);
             cleanup();
         };
-    }, [isOAuth2Enabled, WSLogoutAndRedirect]);
+    }, [WSLogoutAndRedirect]);
 
     return { OAuth2Logout };
 };
