@@ -59,26 +59,18 @@ Use the `useOAuth2` hook within your components.
 
 ```typescript
 import React from 'react';
-import { useOAuth2, TOAuth2EnabledAppList } from '@deriv-com/auth-client';
+import { useOAuth2 } from '@deriv-com/auth-client';
 
 const YourComponent = () => {
-     const [OAuth2EnabledApps, OAuth2EnabledAppsInitialised] = useGrowthbookGetFeatureValue<TOAuth2EnabledAppList>({
-        featureFlag: 'hydra_be',
-    });
 
     const { logout } = useAuthData(); // Your custom hook or function to handle logout
-
-    const OAuth2GrowthBookConfig = {
-       OAuth2EnabledApps,
-       OAuth2EnabledAppsInitialised
-    };
 
     const WSLogoutAndRedirect = async () => {
         await logout();
         // Redirect or perform any additional actions here
     };
 
-    const { OAuth2Logout } = useOAuth2(OAuth2GrowthBookConfig, WSLogoutAndRedirect);
+    const { OAuth2Logout } = useOAuth2(WSLogoutAndRedirect);
 
     return (
         <div>
