@@ -1,21 +1,16 @@
 import { TMBError, TMBErrorType } from './error';
 import { getServerInfo } from '../constants';
 
+export type TMBWebsocketTokenItem = {
+    cur: string;
+    loginid: string;
+    token: string;
+};
+
 export type TMBWebsocketTokens = {
-    "active": boolean,
-    "exp": string,
-    "tokens": [
-        {
-            "cur": string,
-            "loginid": string,
-            "token": string
-        },
-        {
-            "cur": string,
-            "loginid": string,
-            "token": string
-        }
-    ]
+    active: boolean;
+    exp: string;
+    tokens: TMBWebsocketTokenItem[];
 };
 
 export type TMBLogoutResponse = {
