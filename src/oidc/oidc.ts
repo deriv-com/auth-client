@@ -426,7 +426,7 @@ export const OAuth2Logout = async (options: OAuth2LogoutOptions) => {
     };
     const onMessage = (event: MessageEvent) => {
         if (event.data === 'logout_complete') {
-            const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost'];
+            const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost', 'deriv.be', 'deriv.me'];
             const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
             if (domains.includes(currentDomain)) {
                 Cookies.set('logged_state', 'false', {
@@ -542,7 +542,7 @@ export const handlePostLogout = (callbackFunction: () => void) => {
     const sessionStorageKey = `oidc.user:${serverUrl}:${appId}`;
 
     if (!window.sessionStorage.getItem(sessionStorageKey)) {
-        const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost'];
+        const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost', 'deriv.be', 'deriv.me'];
         const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
         if (domains.includes(currentDomain)) {
             Cookies.set('logged_state', 'false', {

@@ -30,7 +30,7 @@ export const useOAuth2 = (WSLogoutAndRedirect: () => Promise<void>) => {
     const OAuth2Logout = useCallback(async () => {
         const onMessage = (event: MessageEvent) => {
             if (event.data === 'logout_complete') {
-                const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost'];
+                const domains = ['deriv.com', 'deriv.dev', 'binary.sx', 'pages.dev', 'localhost', 'deriv.be', 'deriv.me'];
                 const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
                 if (domains.includes(currentDomain)) {
                     Cookies.set('logged_state', 'false', {

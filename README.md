@@ -259,3 +259,6 @@ Then assume that you are logging out from Deriv.app. When you click the Logout b
 Which will automatically clear the local/session storage for authentication data within SmartTrader and Traders Hub Outsystems, so that when the user navigates to SmartTrader or Traders Hub Outsystems, they are already in a logged out state since their `client.accounts` is already cleared off the local storage.
 
 Once the route and page is implemented, you will need to notify the authentication squad or DevOps to register the front channel logout URI in order for Hydra to invoke it during the logout flow.
+
+## TMB
+
