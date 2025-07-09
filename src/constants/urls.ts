@@ -43,7 +43,16 @@ export const getServerInfo = () => {
         LocalStorageUtils.getValue<string>(LocalStorageConstants.configServerURL) ||
         localStorage.getItem('config.server_url');
 
-    const serverUrl = /qa/.test(String(storedServerUrl)) ? storedServerUrl : 'oauth.deriv.com';
+    // Determine server URL based on domain
+    let serverUrl = 'oauth.deriv.com'; // default fallback
+
+    if (storedServerUrl && /qa/.test(String(storedServerUrl))) {
+        serverUrl = storedServerUrl;
+    } else if (hostname.includes('.deriv.me')) {
+        serverUrl = 'oauth.deriv.me';
+    } else if (hostname.includes('.deriv.be')) {
+        serverUrl = 'oauth.deriv.be';
+    }
 
     const appId = LocalStorageUtils.getValue<string>(LocalStorageConstants.configAppId) || appIdFromUtils;
     const lang = LocalStorageUtils.getValue<string>(LocalStorageConstants.i18nLanguage);
